@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS -->
+  <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous"> -->
+  <!-- BootSwatch CSS -->
+  <link rel="stylesheet" href="https://bootswatch.com/4/sketchy/bootstrap.min.css">
+  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css"> -->
+  <title>Loan Calculator</title>
+  <style>
+    /* .card {
+        max-height: 92vh;
+      } */
+
+
+    .table {
+      /* display: block; */
+      overflow: auto;
+      max-height: 30vh;
+    }
+
+    .thead-light #inquiry-list {
+      display: flex;
+    }
+
+    #loading,
+    #results,
+    #table {
+      display: none;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    /* The Modal (background) */
+    .modal {
+      display: none;
+      /* Hidden by default */
+      position: fixed;
+      /* Stay in place */
+      z-index: 1;
+      /* Sit on top */
+      padding-top: 100px;
+      /* Location of the box */
+      left: 0;
+      top: 0;
+      width: 100%;
+      /* Full width */
+      height: 100%;
+      /* Full height */
+      overflow: auto;
+      /* Enable scroll if needed */
+      background-color: rgb(0, 0, 0);
+      /* Fallback color */
+      background-color: rgba(0, 0, 0, 0.4);
+      /* Black w/ opacity */
+    }
+
+    /* Modal Content */
+    .modal-content {
+      align-items: center;
+      background-color: #fefefe;
+      margin: auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      height: 90%;
+
+    }
+
+    /* The Close Button */
+    #x {
+      color: #000;
+      /* color: #aaaaaa; */
+      justify-items: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    #x:hover,
+    #id:focus {
+      text-decoration: underline overline red;
+      cursor: pointer;
+      color: red;
+    }
+
+    .table-wrapper-scroll-y {
+      display: flex;
+    }
+
+    th {
+      font-size: 75%
+    }
+
+    #checked-buttons {
+      justify-content: flex-end;
+      margin-top: 10px;
+      margin-right: 1px;
+    }
+
+    #clear-checked {
+      margin-right: 3px;
+    }
+
+    #clear-checked-button:hover {
+      /* background-color: green !important; */
+      color: white !important;
+    }
+
+    #delete-button:hover {
+      /* background-color: red !important; */
+      color: white !important;
+    }
+
+    #delete {
+      color: pink;
+    }
+
+    #delete:hover {
+      cursor: pointer;
+      color: red;
+      font-weight: bold;
+    }
+
+    textarea {
+      resize: none;
+    }
+
+    #cat-button {
+      margin-left: 2%;
+    }
+  </style>
+
+</head>
+
+<body class="bg-dark">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-10 mx-auto">
+
+        <div id="modal" class="modal">
+          <div class="modal-content" style="align-items: center">
+          </div>
+        </div>
+
+        <div class="card card-body text-center mt-5" style="margin-bottom: 48px">
+          <h1 class="heading display-5 pb-3">Loan Calculator</h1>
+          <form id="loan-form">
+            <div class="form-group">
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input type="number" class="form-control" id="amount" placeholder="Loan Amount" step="0.01" autofocus>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="input-group">
+                <span class="input-group-text" style="width: 35px">%</span>
+                <input type="number" class="form-control" id="interest" placeholder="Interest Rate" step="0.1">
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="input-group">
+                <span class="input-group-text">#</span>
+                <input type="number" class="form-control" id="years" placeholder="Years to Repay">
+              </div>
+            </div>
+            <div class="form-group">
+              <input id="calcBtn" type="submit" value="Calculate" class="btn btn-dark btn-block">
+            </div>
+          </form>
+
+          <div id="results" class="pt-4">
+            <h5>Results</h5>
+            <div class="form-group">
+              <div class="input-group">
+                <span class="input-group-text">Monthly Payment</span>
+                <textarea type="number" id="monthly-payment" rows="1" class="form-control" disabled></textarea>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="input-group">
+                <span class="input-group-text">Total Payment</span>
+                <textarea type="number" id="total-payment" rows="1" class="form-control" disabled></textarea>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="input-group">
+                <span class="input-group-text">Total Interest</span>
+                <textarea type="number" id="total-interest" rows="1" class="form-control" disabled></textarea>
+              </div>
+            </div>
+            <form id="clear-form">
+              <div class="form-group">
+                <input type="submit" id="clear-form-btn" value="Clear Form" class="btn btn-dark btn-block">
+              </div>
+            </form>
+          </div>
+          <div class="row" id="table">
+            <div class="col">
+              <div class="table-responsive table-wrapper-scroll-y">
+                <table class="table table-hover table-sm">
+                  <thead class="thead-light">
+                    <tr>
+                      <th>Loan Amount</th>
+                      <th>Interest Rate</th>
+                      <th># Years</th>
+                      <th>Monthly Payment</th>
+                      <th>Total Payment $$</th>
+                      <th>Total Interest $$</th>
+                      <th></th>
+                      <th>Select for Delete</th>
+                    </tr>
+                  </thead>
+                  <tbody id="inquiry-list"></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="col">
+              <div class="row" id="checked-buttons">
+                <div id="clear-checked">
+                  <button type="button" id="clear-checked-button" class="btn btn-dark float-right"
+                    style="margin-bottom: 10px">Clear Selections</button>
+                </div>
+                <div id="delete-checked">
+                  <button type="button" id='delete-button' class="btn btn-dark float-right"
+                    style="margin-bottom: 10px">Delete Checked</button>
+                </div>
+              </div>
+              <div>
+                <button type="button" id="clear-list" class="btn btn-dark btn-block">Clear List</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Optional JavaScript -->
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous">
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+    integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous">
+  </script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+    integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous">
+  </script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>
