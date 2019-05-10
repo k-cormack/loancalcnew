@@ -4,35 +4,31 @@ let ObjectId = Schema.Types.ObjectId
 
 let schema = new Schema({
   created: {
-    type: Date,
-    default: Date.now()
+    type: String,
+    // default: Date.now()
   },
   amount: {
-    type: Number,
+    type: String,
     rquired: true
   },
-  inquiryNumber: {
-    type: Number,
-    required: true
-  },
   interest: {
-    type: Number,
+    type: String,
     required: true
   },
   monthlyPayment: {
-    type: Number,
+    type: String,
     required: true
   },
   totalInterest: {
-    type: Number,
+    type: String,
     required: true
   },
   totalPayment: {
-    type: Number,
+    type: String,
     required: true
   },
   years: {
-    type: Number,
+    type: String,
     required: true
   },
 })

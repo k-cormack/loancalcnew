@@ -38,4 +38,11 @@ router.delete('/:id', (req, res, next) => {
     })
 })
 
+router.delete('/*', (req, res, next) => {
+  Inquiries.remove()
+    .then(data => {
+      res.send('All Inquiries removed!')
+    })
+})
+
 module.exports = router

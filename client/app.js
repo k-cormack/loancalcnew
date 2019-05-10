@@ -1,7 +1,8 @@
 ///////////// Loan Inquiry constructor ES6 //////////////////////
 class LoanInquiry {
-  constructor(inquiryNumber, amount, interest, years, monthlyPayment, totalPayment, totalInterest) {
-    this.inquiryNumber = inquiryNumber;
+  constructor(created, amount, interest, years, monthlyPayment, totalPayment, totalInterest) {
+    // this.inquiryId = inquiryId;
+    this.created = created;
     this.amount = amount;
     this.interest = interest;
     this.years = years;
@@ -20,7 +21,7 @@ class UI {
     const list = document.getElementById('inquiry-list');
     const row = document.createElement('tr');
     row.innerHTML = `
-      <td style="display: none">${loanInquiry.inquiryNumber}</td>
+      <td style="display: none">${loanInquiry._id}</td>
       <td>\$${loanInquiry.amount}.00</td>
       <td>${loanInquiry.interest}%</td>
       <td>${loanInquiry.years}</td>
@@ -38,6 +39,9 @@ class UI {
         Store.removeInquiry(e.target.parentElement.parentElement.firstElementChild.innerHTML);
         e.target.parentElement.parentElement.remove();
         // console.log(e.target);
+        listCheck(e);
+        e.preventDefault();
+
       }
 
       if (e.target.className === 'checkbox') {
@@ -70,8 +74,8 @@ class UI {
             clearBtn.style.color = 'white';
           }
         }
+
       }
-      listCheck(e);
 
     });
   }
@@ -85,17 +89,18 @@ class Store {
     //Open the connection
     xhr.open('GET', 'http://localhost:3000/api/inquiries', true);
 
-    let response;
+    let inquiries;
     xhr.onload = function () {
       if (this.status === 200) {
-        response = JSON.parse(this.responseText);
-        console.log(response);
-        if (response != []) {
+        inquiries = JSON.parse(this.responseText);
+        console.log(inquiries);
+        if (inquiries != []) {
           let ui = new UI();
-          for (let i = 0; i < response.length; i++) {
-            ui.addInquiryToList(response[i]);
+          for (let i = 0; i < inquiries.length; i++) {
+            ui.addInquiryToList(inquiries[i]);
             showTable();
           }
+          localStorage.setItem('inquiries', JSON.stringify(inquiries));
         }
       }
     }
@@ -105,19 +110,49 @@ class Store {
   }
 
   static addInquiry(inquiry) {
-    const inquiries = Store.getInquiries();
-    inquiries.push(inquiry);
-    localStorage.setItem('inquiries', JSON.stringify(inquiries));
+    const inquiries = JSON.parse(localStorage.getItem('inquiries'));
+    if (inquiries != []) {
+      inquiries.push(inquiry);
+      console.log(inquiries)
+      localStorage.setItem('inquiries', JSON.stringify(inquiries));
+      let xhr = new XMLHttpRequest();
+      xhr.open('POST', 'http://localhost:3000/api/inquiries', true);
+      xhr.setRequestHeader('Content-type', 'application/json');
+      // xhr.onload = function () {
+
+      // };
+      xhr.send(JSON.stringify(inquiry));
+    }
   }
 
-  static removeInquiry(inquiryNum) {
-    let inquiries = Store.getInquiries();
-    for (let i = 0; i < inquiries.length; i++) {
-      if (inquiries[i].inquiryNumber == inquiryNum) {
-        inquiries.splice(i, 1)
-        localStorage.setItem('inquiries', JSON.stringify(inquiries));
+  static removeInquiry(inquiryId) {
+    let xhr = new XMLHttpRequest();
+    xhr.open('GET', 'http://localhost:3000/api/inquiries', true);
+    xhr.onload = function () {
+      let inquiries;
+      if (this.status === 200) {
+        inquiries = JSON.parse(this.responseText);
+        console.log(inquiries);
+        for (let i = 0; i < inquiries.length; i++) {
+          if (inquiries[i]._id == inquiryId) {
+            console.log(inquiries[i]._id)
+            let xhr = new XMLHttpRequest();
+            xhr.open('DELETE', `http://localhost:3000/api/inquiries/${inquiries[i]._id}`, true);
+            xhr.send(inquiries[i]);
+            inquiries.splice(i, 1)
+            localStorage.setItem('inquiries', JSON.stringify(inquiries));
+          }
+        };
       }
+
     }
+    xhr.send();
+  }
+
+  static removeAllInquiries() {
+    let xhr = new XMLHttpRequest();
+    xhr.open('DELETE', 'http://localhost:3000/api/inquiries', true);
+    xhr.send();
   }
 
   static checkInquiries() {
@@ -146,8 +181,8 @@ document.getElementById('loan-form').addEventListener('submit', function (e) {
 
 function calculateResults() {
 
-  const inquiryNumber = Store.checkInquiries() + 1;
-
+  // const inquiryNumber = Store.checkInquiries() + 1;
+  const created = (new Date()).toString();
   const amount = document.getElementById('amount');
   const interest = document.getElementById('interest');
   const years = document.getElementById('years');
@@ -175,7 +210,7 @@ function calculateResults() {
     interest.disabled = true;
     years.disabled = true;
     document.getElementById('calcBtn').disabled = true;
-    const loanInquiry = new LoanInquiry(inquiryNumber, amount.value, interest.value, years.value, monthlyPayment.value, totalPayment.value, totalInterest.value);
+    const loanInquiry = new LoanInquiry(created, amount.value, interest.value, years.value, monthlyPayment.value, totalPayment.value, totalInterest.value);
 
     const ui = new UI();
     modal();
@@ -189,6 +224,8 @@ function calculateResults() {
         showResults(loanInquiry), ui.addInquiryToList(loanInquiry)
       }, 500);
     }
+    console.log(created);
+
     Store.addInquiry(loanInquiry);
   } else {
     showError('Please Check Your Numbers!  Or...');
@@ -304,6 +341,7 @@ function clearList(e) {
         };
         document.getElementById('table').style.display = 'none';
         localStorage.removeItem('inquiries');
+        Store.removeAllInquiries();
         clearForm(e);
         swal("Your inquiries have been cleared....", {
           icon: "success",
@@ -353,6 +391,8 @@ function deleteChecked(e) {
   clearBtn.style.color = 'white';
   document.getElementById('amount').focus();
 
+  e.preventDefault();
+
 }
 
 function clearChecked() {
@@ -377,8 +417,10 @@ function listCheck(e) {
   const listCheck = document.querySelectorAll('tr');
   if (listCheck.length <= 1) {
     localStorage.removeItem('inquiries');
+    Store.removeAllInquiries();
     document.getElementById('table').style.display = 'none';
     clearForm(e);
+    e.preventDefault();
   }
 }
 
