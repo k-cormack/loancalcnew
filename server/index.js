@@ -12,7 +12,7 @@ var corsOptions = {
   },
   credentials: true
 };
-server.use(express.static(__dirname + './dist'))
+server.use(express.static(__dirname + '/../client'))
 server.use(cors(corsOptions))
 
 //Fire up the database Connection
