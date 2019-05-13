@@ -97,8 +97,6 @@ class Store {
     xhr.onload = function () {
       if (this.status === 200) {
         inquiries = JSON.parse(this.responseText);
-        console.log(inquiries);
-        console.log(this.response);
         if (inquiries != []) {
           let ui = new UI();
           for (let i = 0; i < inquiries.length; i++) {
@@ -131,27 +129,44 @@ class Store {
   }
 
   static removeInquiry(inquiryId) {
+    let inquiries;
     let xhr = new XMLHttpRequest();
     xhr.open('GET', 'http://localhost:3000/api/inquiries', true);
     xhr.onload = function () {
-      let inquiries;
       if (this.status === 200) {
         inquiries = JSON.parse(this.responseText);
-        console.log(inquiries);
-        for (let i = 0; i < inquiries.length; i++) {
-          if (inquiries[i]._id == inquiryId) {
-            // console.log(inquiries[i]._id)
-            let xhr = new XMLHttpRequest();
-            xhr.open('DELETE', `http://localhost:3000/api/inquiries/${inquiries[i]._id}`, true);
-            xhr.onload = function (response) {
-              console.log(response.target.responseText);
+        if (typeof (inquiryId) == 'string') {
+          console.log('inquiryId is a STRING');
+          for (let i = 0; i < inquiries.length; i++) {
+            if (inquiries[i]._id == inquiryId) {
+              let xhr = new XMLHttpRequest();
+              xhr.open('DELETE', `http://localhost:3000/api/inquiries/${inquiries[i]._id}`, true);
+              xhr.onload = function (response) {
+                console.log(response.target.responseText);
+              }
+              xhr.send(inquiries[i]);
+              inquiries.splice(i, 1);
+              break;
             }
-            xhr.send(inquiries[i]);
-            inquiries.splice(i, 1)
-            localStorage.setItem('inquiries', JSON.stringify(inquiries));
+          }
+        } else {
+          console.log('inquiryId is an ARRAY');
+          for (let i = 0; i < inquiries.length; i++) {
+            for (let k = 0; k < inquiryId.length; k++) {
+              if (inquiries[i]._id == inquiryId[k]) {
+                let xhr = new XMLHttpRequest();
+                xhr.open('DELETE', `http://localhost:3000/api/inquiries/${inquiries[i]._id}`, true);
+                xhr.onload = function (response) {
+                  console.log(response.target.responseText);
+                }
+                xhr.send(inquiries[i]);
+                inquiries.splice(i, 1);
+              }
+            }
           }
         };
       }
+      localStorage.setItem('inquiries', JSON.stringify(inquiries));
 
     }
     xhr.send();
@@ -226,13 +241,12 @@ function calculateResults() {
     const ui = new UI();
     modal();
     if (document.getElementById('table').style.display != 'block') {
-      // ui.addInquiryToList(loanInquiry);
       setTimeout(function () {
         showResults(loanInquiry), showTable()
       }, 500);
     } else {
       setTimeout(function () {
-        showResults(loanInquiry), ui.addInquiryToList(loanInquiry)
+        showResults(loanInquiry);
       }, 500);
     }
 
@@ -380,15 +394,17 @@ function mouseOutClear() {
 }
 
 function deleteChecked(e) {
+  let allChecked = [];
   let checked = document.querySelectorAll('.checkbox');
   let deleteBtn = document.getElementById('delete-button');
   let clearBtn = document.getElementById('clear-checked-button');
-  for (let i = 0; i <= checked.length - 1; i++) {
+  for (let i = 0; i < checked.length; i++) {
     if (checked[i].checked === true) {
-      Store.removeInquiry(checked[i].parentElement.parentElement.firstElementChild.innerHTML);
+      allChecked.push(checked[i].parentElement.parentElement.firstElementChild.innerHTML);
       checked[i].parentElement.parentElement.remove();
     }
   }
+  Store.removeInquiry(allChecked);
   listCheck(e);
 
   deleteBtn.onmouseover = null;
