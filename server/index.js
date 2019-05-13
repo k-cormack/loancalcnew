@@ -4,7 +4,7 @@ var server = express()
 var cors = require('cors')
 var port = process.env.PORT || 3000
 
-var whiteList = ['http://127.0.0.1:5500', 'http://cormack-loancalcnew.herokuapp.com'];
+var whiteList = ['http://127.0.0.1:5500', 'https://cormack-loancalcnew.herokuapp.com'];
 var corsOptions = {
   origin: function (origin, callback) {
     var originIsWhiteListed = whiteList.indexOf(origin) !== -1;
