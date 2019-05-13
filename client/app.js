@@ -117,7 +117,7 @@ class Store {
     const inquiries = JSON.parse(localStorage.getItem('inquiries'));
     // if (inquiries != []) {
     let xhr = new XMLHttpRequest();
-    xhr.open('POST', 'http://localhost:3000/api/inquiries', true);
+    xhr.open('POST', 'https://cormack-loancalcnew.herokuapp.com/api/inquiries', true);
     xhr.setRequestHeader('Content-type', 'application/json');
     xhr.onload = function () {
       ui.addInquiryToList(JSON.parse(this.response));
@@ -131,7 +131,7 @@ class Store {
   static removeInquiry(inquiryId) {
     let inquiries;
     let xhr = new XMLHttpRequest();
-    xhr.open('GET', 'http://localhost:3000/api/inquiries', true);
+    xhr.open('GET', 'https://cormack-loancalcnew.herokuapp.com/api/inquiries', true);
     xhr.onload = function () {
       if (this.status === 200) {
         inquiries = JSON.parse(this.responseText);
@@ -140,7 +140,7 @@ class Store {
           for (let i = 0; i < inquiries.length; i++) {
             if (inquiries[i]._id == inquiryId) {
               let xhr = new XMLHttpRequest();
-              xhr.open('DELETE', `http://localhost:3000/api/inquiries/${inquiries[i]._id}`, true);
+              xhr.open('DELETE', `https://cormack-loancalcnew.herokuapp.com/api/inquiries/${inquiries[i]._id}`, true);
               xhr.onload = function (response) {
                 console.log(response.target.responseText);
               }
@@ -155,7 +155,7 @@ class Store {
             for (let k = 0; k < inquiryId.length; k++) {
               if (inquiries[i]._id == inquiryId[k]) {
                 let xhr = new XMLHttpRequest();
-                xhr.open('DELETE', `http://localhost:3000/api/inquiries/${inquiries[i]._id}`, true);
+                xhr.open('DELETE', `https://cormack-loancalcnew.herokuapp.com/api/inquiries/${inquiries[i]._id}`, true);
                 xhr.onload = function (response) {
                   console.log(response.target.responseText);
                 }
@@ -174,7 +174,7 @@ class Store {
 
   static removeAllInquiries() {
     let xhr = new XMLHttpRequest();
-    xhr.open('DELETE', 'http://localhost:3000/api/inquiries', true);
+    xhr.open('DELETE', 'https://cormack-loancalcnew.herokuapp.com/api/inquiries', true);
     xhr.onload = function (response) {
       console.log(response.target.responseText);
     }
