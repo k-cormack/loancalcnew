@@ -72,6 +72,10 @@ class UI {
             deleteBtn.style.color = 'white';
             clearBtn.style.backgroundColor = 'rgb(85, 85, 85)';
             clearBtn.style.color = 'white';
+            deleteBtn.onmouseover = null;
+            deleteBtn.onmouseout = null;
+            clearBtn.onmouseover = null;
+            clearBtn.onmouseout = null;
           }
         }
 
