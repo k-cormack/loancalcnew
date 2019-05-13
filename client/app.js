@@ -91,7 +91,7 @@ class Store {
     const xhr = new XMLHttpRequest();
 
     //Open the connection
-    xhr.open('GET', 'http://localhost:3000/api/inquiries', true);
+    xhr.open('GET', 'https://cormack-loancalcnew.herokuapp.com/api/inquiries', true);
 
     let inquiries;
     xhr.onload = function () {
