@@ -94,6 +94,7 @@ class Store {
       if (this.status === 200) {
         inquiries = JSON.parse(this.responseText);
         console.log(inquiries);
+        console.log(this.response);
         if (inquiries != []) {
           let ui = new UI();
           for (let i = 0; i < inquiries.length; i++) {
@@ -110,19 +111,19 @@ class Store {
   }
 
   static addInquiry(inquiry) {
+    let ui = new UI();
     const inquiries = JSON.parse(localStorage.getItem('inquiries'));
-    if (inquiries != []) {
-      inquiries.push(inquiry);
-      console.log(inquiries)
+    // if (inquiries != []) {
+    let xhr = new XMLHttpRequest();
+    xhr.open('POST', 'http://localhost:3000/api/inquiries', true);
+    xhr.setRequestHeader('Content-type', 'application/json');
+    xhr.onload = function () {
+      ui.addInquiryToList(JSON.parse(this.response));
+      inquiries.push(this.response);
       localStorage.setItem('inquiries', JSON.stringify(inquiries));
-      let xhr = new XMLHttpRequest();
-      xhr.open('POST', 'http://localhost:3000/api/inquiries', true);
-      xhr.setRequestHeader('Content-type', 'application/json');
-      // xhr.onload = function () {
-
-      // };
-      xhr.send(JSON.stringify(inquiry));
-    }
+    };
+    xhr.send(JSON.stringify(inquiry));
+    // }
   }
 
   static removeInquiry(inquiryId) {
@@ -135,9 +136,12 @@ class Store {
         console.log(inquiries);
         for (let i = 0; i < inquiries.length; i++) {
           if (inquiries[i]._id == inquiryId) {
-            console.log(inquiries[i]._id)
+            // console.log(inquiries[i]._id)
             let xhr = new XMLHttpRequest();
             xhr.open('DELETE', `http://localhost:3000/api/inquiries/${inquiries[i]._id}`, true);
+            xhr.onload = function (response) {
+              console.log(response.target.responseText);
+            }
             xhr.send(inquiries[i]);
             inquiries.splice(i, 1)
             localStorage.setItem('inquiries', JSON.stringify(inquiries));
@@ -152,6 +156,9 @@ class Store {
   static removeAllInquiries() {
     let xhr = new XMLHttpRequest();
     xhr.open('DELETE', 'http://localhost:3000/api/inquiries', true);
+    xhr.onload = function (response) {
+      console.log(response.target.responseText);
+    }
     xhr.send();
   }
 
@@ -215,7 +222,7 @@ function calculateResults() {
     const ui = new UI();
     modal();
     if (document.getElementById('table').style.display != 'block') {
-      ui.addInquiryToList(loanInquiry);
+      // ui.addInquiryToList(loanInquiry);
       setTimeout(function () {
         showResults(loanInquiry), showTable()
       }, 500);
@@ -224,7 +231,6 @@ function calculateResults() {
         showResults(loanInquiry), ui.addInquiryToList(loanInquiry)
       }, 500);
     }
-    console.log(created);
 
     Store.addInquiry(loanInquiry);
   } else {
@@ -340,7 +346,7 @@ function clearList(e) {
           child = list.lastElementChild;
         };
         document.getElementById('table').style.display = 'none';
-        localStorage.removeItem('inquiries');
+        localStorage.setItem('inquiries', '[]');
         Store.removeAllInquiries();
         clearForm(e);
         swal("Your inquiries have been cleared....", {
