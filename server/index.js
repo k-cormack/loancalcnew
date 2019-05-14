@@ -31,7 +31,7 @@ server.use('/api/inquiries', inquiryRoute)
 //Catch All
 server.get('*', (req, res, next) => {
   res.status(404).send({
-    error: 'No matching routes (KC)'
+    error: 'No matching routes (...)'
   })
 })
 

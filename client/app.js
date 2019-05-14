@@ -87,6 +87,11 @@ class UI {
 
 class Store {
   static getInquiries() {
+    let localInquiries = localStorage.getItem('inquiries');
+
+    if (localInquiries != [] || localInquiries != null) {
+      console.log(inquiries);
+    }
     // Create the XHR Object
     const xhr = new XMLHttpRequest();
 
