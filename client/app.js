@@ -90,7 +90,7 @@ class Store {
     let localInquiries = localStorage.getItem('inquiries');
 
     if (localInquiries != [] || localInquiries != null) {
-      console.log(inquiries);
+      console.log(localInquiries);
     }
     // Create the XHR Object
     const xhr = new XMLHttpRequest();
