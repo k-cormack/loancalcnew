@@ -7,7 +7,10 @@ let Inquiries = require('../models/inquiry')
 // })
 
 router.get('/', (req, res, next) => {
-  Inquiries.find()
+  console.log(req.query._id);
+  Inquiries.find(
+      req.query
+    )
     .then(data => {
       res.send(data)
     })
@@ -18,6 +21,7 @@ router.get('/', (req, res, next) => {
 })
 
 router.post('/', (req, res, next) => {
+  console.log(req);
   Inquiries.create(req.body)
     .then(newInquiry => {
       res.send(newInquiry)
@@ -33,17 +37,20 @@ router.delete('/:id', (req, res, next) => {
     .then(inquiry => {
       Inquiries.findByIdAndDelete(req.params.id)
         .then(data => {
-          res.send('Inquiry Deleted(KC)')
+          res.send('Inquiry(s) Deleted(KC)')
 
         })
     })
 })
 
-router.delete('/*', (req, res, next) => {
-  Inquiries.deleteMany()
-    .then(data => {
-      res.send('All Inquiries removed!')
-    })
-})
+// router.delete('/', (req, res, next) => {
+//   console.log(req.query)
+//   Inquiries.findByIdAndDelete(
+//       req.query
+//     )
+//     .then(data => {
+//       res.send('All Inquiries removed!')
+//     })
+// })
 
 module.exports = router
