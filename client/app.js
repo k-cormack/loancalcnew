@@ -22,7 +22,6 @@ class InquiryId {
 
 class UI {
   addInquiryToList(loanInquiry) {
-    // console.log(loanInquiry.amount);
     const list = document.getElementById('inquiry-list');
     const row = document.createElement('tr');
     row.innerHTML = `
@@ -41,9 +40,8 @@ class UI {
 
     row.addEventListener('click', function (e) {
       if (e.target.className === 'delete') {
-        Store.removeInquiry(e.target.parentElement.parentElement.firstElementChild.innerHTML);
+        Store.removeSingleInquiry(e.target.parentElement.parentElement.firstElementChild.innerHTML);
         e.target.parentElement.parentElement.remove();
-        // console.log(e.target);
         listCheck(e);
         e.preventDefault();
 
@@ -96,11 +94,9 @@ class Store {
     if (!(localInquiries == null || localInquiries == "[]" || localInquiries == "")) {
       if (typeof localInquiries === "string") {
         localInquiries = JSON.parse(localInquiries);
-        console.log(localInquiries);
         let id;
         let id1 = "";
         localInquiries.forEach(x => {
-          console.log(x._id);
           id = `_id=${x._id}&`;
           id1 = id1 + id;
         });
@@ -109,7 +105,7 @@ class Store {
         const xhr = new XMLHttpRequest();
 
         //Open the connection
-        xhr.open('GET', `http://127.0.0.1:3000/api/inquiries?${id1}`, true);
+        xhr.open('GET', `https://cormack-loancalculator.herokuapp.com/api/inquiries?${id1}`, true);
 
         xhr.setRequestHeader('Content-type', 'application/json');
         let inquiries;
@@ -129,6 +125,8 @@ class Store {
         //Don't forget to SEND the request
         xhr.send();
       }
+    } else {
+      localStorage.setItem('inquiries', '[]');
     }
   }
 
@@ -141,81 +139,82 @@ class Store {
       localStorage.setItem('inquiries', '[]');
       inquiries = JSON.parse(localStorage.getItem('inquiries'));
     }
-    console.log(inquiries);
-    // if (inquiries !== []) {
     let xhr = new XMLHttpRequest();
-    xhr.open('POST', 'http://127.0.0.1:3000/api/inquiries', true);
+    xhr.open('POST', 'https://cormack-loancalculator.herokuapp.com/api/inquiries', true);
     xhr.setRequestHeader('Content-type', 'application/json');
     xhr.onload = function () {
       ui.addInquiryToList(JSON.parse(this.response));
       inquiries.push(JSON.parse(this.response));
       localStorage.setItem('inquiries', JSON.stringify(inquiries));
-      console.log(JSON.stringify(inquiries));
     };
     xhr.send(JSON.stringify(inquiry));
-
-    // }
   }
 
-  static removeInquiry(inquiryId) {
-    let inquiries;
+  static removeSingleInquiry(inquiryId) {
     let xhr = new XMLHttpRequest();
-    xhr.open('GET', 'http://127.0.0.1:3000/api/inquiries', true);
-    xhr.onload = function () {
-      if (this.status === 200) {
-        inquiries = JSON.parse(this.responseText);
-        if (typeof (inquiryId) == 'string') {
-          console.log('inquiryId is a STRING');
-          for (let i = 0; i < inquiries.length; i++) {
-            if (inquiries[i]._id == inquiryId) {
-              let xhr = new XMLHttpRequest();
-              xhr.open('DELETE', `http://127.0.0.1:3000/api/inquiries/${inquiries[i]._id}`, true);
-              xhr.onload = function (response) {
-                console.log(response.target.responseText);
-              }
-              xhr.send(inquiries[i]);
-              inquiries.splice(i, 1);
-              break;
-            }
-          }
-        } else {
-          console.log('inquiryId is an ARRAY');
-          for (let i = 0; i < inquiries.length; i++) {
-            for (let k = 0; k < inquiryId.length; k++) {
-              if (inquiries[i]._id == inquiryId[k]) {
-                let xhr = new XMLHttpRequest();
-                xhr.open('DELETE', `http://127.0.0.1:3000/api/inquiries/${inquiries[i]._id}`, true);
-                xhr.onload = function (response) {
-                  console.log(response.target.responseText);
-                }
-                xhr.send(inquiries[i]);
-                inquiries.splice(i, 1);
-              }
-            }
-          }
-        };
+    let inquiries = JSON.parse(localStorage.getItem('inquiries'));
+    xhr.open('DELETE', `https://cormack-loancalculator.herokuapp.com/api/inquiries/${inquiryId}`, true);
+    xhr.onload = function (response) {
+      for (let i = 0; i < inquiries.length; i++) {
+        if (inquiries[i] == inquiryId) {
+          inquiries.splice(i, 1);
+          localStorage.setItem('inquiries', JSON.stringify(inquiries));
+          break;
+        }
       }
-      localStorage.setItem('inquiries', JSON.stringify(inquiries));
-
     }
     xhr.send();
+  }
+
+  static removeCheckedInquiry(inquiryId) {
+    let inquiries;
+    let localInquiries = localStorage.getItem('inquiries');
+    if (!(localInquiries == null || localInquiries == "[]" || localInquiries == "")) {
+      if (typeof localInquiries === "string") {
+        localInquiries = JSON.parse(localInquiries);
+        let id;
+        let id1 = "";
+        localInquiries.forEach(x => {
+          id = `_id=${x._id}&`;
+          id1 = id1 + id;
+        });
+        let xhr = new XMLHttpRequest();
+        xhr.open('GET', `https://cormack-loancalculator.herokuapp.com/api/inquiries?${id1}`, true);
+        xhr.onload = function () {
+          if (this.status === 200) {
+            inquiries = JSON.parse(this.responseText);
+            for (let i = 0; i < inquiries.length; i++) {
+              for (let k = 0; k < inquiryId.length; k++) {
+                if (inquiries[i]._id == inquiryId[k]) {
+                  let xhr = new XMLHttpRequest();
+                  xhr.open('DELETE', `https://cormack-loancalculator.herokuapp.com/api/inquiries/${inquiries[i]._id}`, true);
+                  xhr.onload = function (response) {
+                    inquiries.splice(i, 1);
+                  }
+                  xhr.send();
+                }
+              }
+            };
+          }
+          localStorage.setItem('inquiries', JSON.stringify(inquiries));
+
+        }
+        xhr.send();
+      }
+    }
   }
 
   static removeAllInquiries() {
     let localInquiries = JSON.parse(localStorage.getItem('inquiries'));
-    let id;
-    let id1 = "";
     localInquiries.forEach(x => {
-      console.log(x._id);
-      id = `_id=${x._id}&`;
-      id1 = id1 + id;
+      let xhr = new XMLHttpRequest();
+      xhr.open('DELETE', `https://cormack-loancalculator.herokuapp.com/api/inquiries/${x._id}`, true);
+      xhr.onload = function (response) {
+        console.log(response.currentTarget.responseText);
+      }
+      xhr.send();
     });
-    let xhr = new XMLHttpRequest();
-    xhr.open('DELETE', `http://127.0.0.1:3000/api/inquiries/`, true);
-    xhr.onload = function (response) {
-      console.log(response.target.responseText);
-    }
-    xhr.send();
+    localStorage.setItem('inquiries', '[]');
   }
 
   static checkInquiries() {
@@ -256,7 +255,6 @@ function calculateResults() {
 
 
   const principal = parseFloat(amount.value);
-  // console.log(principal);
   const calculatedInterest = parseFloat(interest.value) / 100 / 12;
   const calculatedPayments = parseFloat(years.value) * 12;
 
@@ -369,7 +367,6 @@ function clearForm(e) {
   document.getElementById('years').disabled = false;
   document.getElementById('calcBtn').removeAttribute('disabled');
   document.getElementById('amount').focus();
-  // console.log(e);
   e.preventDefault();
 }
 
@@ -400,7 +397,6 @@ function clearList(e) {
           child = list.lastElementChild;
         };
         document.getElementById('table').style.display = 'none';
-        localStorage.setItem('inquiries', '[]');
         Store.removeAllInquiries();
         clearForm(e);
         swal("Your inquiries have been cleared....", {
@@ -440,7 +436,7 @@ function deleteChecked(e) {
       checked[i].parentElement.parentElement.remove();
     }
   }
-  Store.removeInquiry(allChecked);
+  Store.removeCheckedInquiry(allChecked);
   listCheck(e);
 
   deleteBtn.onmouseover = null;
@@ -479,7 +475,7 @@ function listCheck(e) {
   const listCheck = document.querySelectorAll('tr');
   if (listCheck.length <= 1) {
     localStorage.removeItem('inquiries');
-    Store.removeAllInquiries();
+    // Store.removeAllInquiries();
     document.getElementById('table').style.display = 'none';
     clearForm(e);
     e.preventDefault();

@@ -1,13 +1,7 @@
 let router = require('express').Router()
 let Inquiries = require('../models/inquiry')
 
-// router.post('*', (req, res, next) => {
-//   console.log('Hit the inquiry route')
-//   next()
-// })
-
 router.get('/', (req, res, next) => {
-  console.log(req.query._id);
   Inquiries.find(
       req.query
     )
@@ -21,7 +15,6 @@ router.get('/', (req, res, next) => {
 })
 
 router.post('/', (req, res, next) => {
-  console.log(req);
   Inquiries.create(req.body)
     .then(newInquiry => {
       res.send(newInquiry)
@@ -42,15 +35,5 @@ router.delete('/:id', (req, res, next) => {
         })
     })
 })
-
-// router.delete('/', (req, res, next) => {
-//   console.log(req.query)
-//   Inquiries.findByIdAndDelete(
-//       req.query
-//     )
-//     .then(data => {
-//       res.send('All Inquiries removed!')
-//     })
-// })
 
 module.exports = router
